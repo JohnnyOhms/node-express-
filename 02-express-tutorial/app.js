@@ -4,9 +4,19 @@ let { people } = require("./data");
 
 app.use(express.static("./methods-public"));
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 app.get("/api/people", (req, res) => {
-  res.send(200).json({ success: true, data: people });
+  res.status(200).json({ success: true, data: people });
+});
+
+app.post("/api/people", (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    return res.status(404).json({ success: true, msg: "input a value" });
+  }
+  // const newPeople = [...people, { id: people.length + 1, name: name }];
+  return res.status(201).json({ success: true, person: name });
 });
 
 app.post("/login", (req, res) => {

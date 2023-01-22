@@ -38,25 +38,18 @@
         <div class="result"></div>
       </section>
     </main>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
-      integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
       const result = document.querySelector(".result");
 
       const fetchPeople = async () => {
         try {
-          const { data } = await fetch("/api/people", { method: "GET" });
-
+          const { data } = await axios.get("http://localhost:3000/api/people");
           const people = data.data.map((person) => {
             return `<h5>${person.name}</h5>`;
           });
-          console.log(data);
           result.innerHTML = people.join("");
         } catch (error) {
-          console.log(error);
           result.innerHTML = `<div class="alert alert-danger">Can't Fetch Data</div>`;
         }
       };
@@ -70,16 +63,12 @@
         const nameValue = input.value;
 
         try {
-          const { data } = await fetch(
-            "/api/people",
-            { method: "POST" },
-            { name: nameValue }
-          );
+          const { data } = await axios.post("/api/people", { name: nameValue });
           const h5 = document.createElement("h5");
           h5.textContent = data.person;
           result.appendChild(h5);
         } catch (error) {
-          // console.log(error.response)
+          console.log(error.response);
           formAlert.textContent = error.response.data.msg;
         }
         input.value = "";
