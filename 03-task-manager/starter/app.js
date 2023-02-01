@@ -25,5 +25,4 @@ const start = async () => {
     console.log("there was an error starting up the server");
   }
 };
-
 start();

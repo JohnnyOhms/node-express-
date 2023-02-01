@@ -1,41 +1,43 @@
 const Task = require("../model/Task");
-const asyncWrapper = require("../middleware/async");
+const asyncHandler = require("express-async-handler");
+const { acessCustumeError } = require("../error/custumeError");
 
-const getAllTasks = asyncWrapper(async (req, res) => {
-  const tasks = await Task.find({});
-  res.status(201).send({ tasks });
+const getAllTasks = asyncHandler(async (req, res) => {
+  const task = await Task.find({});
+  return res.status(201).send({ task });
 });
 
-const getTask = asyncWrapper(async (req, res) => {
+const getTask = asyncHandler(async (req, res) => {
   const task = await Task.findOne({ _id: req.params.id });
+  if (!task) {
+    throw Error(`cannot find id`);
+  }
+  return res.status(201).send({ task });
+});
+
+const addNewTask = asyncHandler(async (req, res) => {
+  const task = await Task.create(req.body);
   res.status(201).send({ task });
 });
 
-const addNewTask = asyncWrapper(async (req, res) => {
-  const tasks = await Task.create(req.body);
-  res.status(201).send({ tasks });
-});
-
-const editTask = asyncWrapper(async (req, res) => {
-  const task = await Task.findOneAndUpdate({ _id: req.params.id }, req.body, {
+const editTask = asyncHandler(async (req, res) => {
+  const { id: taskID } = req.params;
+  const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
     new: true,
     runValidators: true,
   });
   if (!task) {
-    return req
-      .send(404)
-      .json({ sucess: false, mssg: `no ${req.params.id} matches the DB` });
+    throw Error(`cannot find id`);
   }
+  return res.status(201).send({ task });
 });
 
-const deleteTask = asyncWrapper(async (req, res) => {
-  const tasks = await Task.findOneAndDelete({ _id: req.params.id });
-  res.status(201).send({ tasks });
-  if (!tasks) {
-    return req
-      .send(404)
-      .json({ sucess: false, mssg: `no ${req.params.id} matches the DB` });
+const deleteTask = asyncHandler(async (req, res, next) => {
+  const task = await Task.findOneAndDelete({ _id: req.params.id });
+  if (!task) {
+    throw Error(`cannot find id`);
   }
+  return res.status(201).send({ task });
 });
 
 module.exports = { getAllTasks, addNewTask, editTask, deleteTask, getTask };
